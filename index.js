@@ -18,9 +18,9 @@ function extractText(resp) {
         if (resp?.candidates?.[0]?.content?.parts?.[0]?.text) {
             return resp.candidates[0].content.parts[0].text;
         }
-        return "Maaf, terjadi kesalahan.";
+        return "Maaf, saya tidak bisa memproses permintaan ini.";
     } catch (err) {
-        return "Terjadi kesalahan.";
+        return "Terjadi kesalahan pada server.";
     }
 }
 
@@ -34,9 +34,9 @@ app.post('/api/chat/text', async (req, res) => {
         }
         
         const systemInstructions = {
-            chat: 'Kamu adalah AIBH, asisten AI yang ramah, hangat, dan membantu. Jawab pertanyaan dengan bahasa yang santai dan mudah dipahami.',
-            deep: 'Kamu adalah AIBH dalam mode PIKIR MENDALAM. Analisis pertanyaan dengan sangat mendalam, jabarkan langkah demi langkah, berikan reasoning yang jelas.',
-            search: 'Kamu adalah AIBH dalam mode PENCARIAN CERDAS. Prioritaskan akurasi informasi, berikan fakta yang terverifikasi, jawab singkat padat.'
+            chat: 'Kamu adalah AIBH, asisten AI yang ramah, hangat, dan membantu. Jawab pertanyaan dengan bahasa yang santai dan mudah dipahami. Gunakan bahasa Indonesia.',
+            deep: 'Kamu adalah AIBH dalam mode PIKIR MENDALAM. Analisis pertanyaan dengan sangat mendalam, jabarkan langkah demi langkah, berikan reasoning yang jelas. Gunakan bahasa Indonesia.',
+            search: 'Kamu adalah AIBH dalam mode PENCARIAN CERDAS. Prioritaskan akurasi informasi, berikan fakta yang terverifikasi, jawab singkat padat. Gunakan bahasa Indonesia.'
         };
         
         const instruction = systemInstructions[mode] || systemInstructions.chat;
@@ -44,6 +44,8 @@ app.post('/api/chat/text', async (req, res) => {
         let temperature = 0.7;
         if (mode === 'deep') temperature = 0.4;
         if (mode === 'search') temperature = 0.2;
+        
+        console.log(`📩 Mode: ${mode} | Prompt: ${prompt.substring(0, 50)}...`);
         
         const response = await ai.models.generateContent({
             model: GEMINI_MODEL,
@@ -56,11 +58,12 @@ app.post('/api/chat/text', async (req, res) => {
         });
         
         const output = extractText(response);
+        console.log(`📤 Response length: ${output.length}`);
         res.json({ output });
         
     } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ error: error.message });
+        console.error('❌ Error detail:', error);
+        res.status(500).json({ error: error.message, output: `Error: ${error.message}` });
     }
 });
 
@@ -79,6 +82,7 @@ app.post('/api/chat/image', upload.single('image'), async (req, res) => {
         });
         res.json({ output: extractText(response) });
     } catch (error) {
+        console.error('Error:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -152,7 +156,7 @@ app.get('/chat', (req, res) => {
             position: relative;
         }
 
-        /* ========== HEADER ========== */
+        /* Header */
         .header {
             background: #0a0a0a;
             border-bottom: 1px solid rgba(255,255,255,0.08);
@@ -177,7 +181,6 @@ app.get('/chat', (req, res) => {
             cursor: pointer;
             padding: 8px;
             border-radius: 8px;
-            transition: all 0.2s;
         }
 
         .menu-btn:hover {
@@ -185,7 +188,7 @@ app.get('/chat', (req, res) => {
             color: #3b82f6;
         }
 
-        /* Logo AIBH - Modern Bridge (A dan H terhubung) */
+        /* Logo Stylized */
         .logo-container {
             display: flex;
             align-items: center;
@@ -233,7 +236,7 @@ app.get('/chat', (req, res) => {
             50% { opacity: 0.5; }
         }
 
-        /* ========== MAIN CHAT ========== */
+        /* Chat Main */
         .chat-main {
             flex: 1;
             display: flex;
@@ -292,17 +295,16 @@ app.get('/chat', (req, res) => {
             justify-content: flex-start;
         }
 
+        /* Bot Avatar - Logo AIBH Modern Bridge (sama dengan logo header) */
         .bot-avatar {
             width: 32px;
             height: 32px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            color: white;
             flex-shrink: 0;
+        }
+
+        .bot-avatar svg {
+            width: 32px;
+            height: 32px;
         }
 
         .bot-bubble {
@@ -327,7 +329,25 @@ app.get('/chat', (req, res) => {
             max-width: 85%;
         }
 
-        /* Preview gambar di dalam chat (sebelum enter) */
+        .user-image-in-chat {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .message-time {
+            font-size: 10px;
+            color: #9ca3af;
+            margin-top: 6px;
+        }
+
+        .user-bubble .message-time {
+            color: rgba(255,255,255,0.6);
+        }
+
+        /* Pending File Preview */
         .pending-file-preview {
             background: #1f2937;
             border: 1px solid rgba(255,255,255,0.1);
@@ -347,10 +367,6 @@ app.get('/chat', (req, res) => {
             object-fit: cover;
         }
 
-        .pending-file-preview .file-info {
-            font-size: 13px;
-        }
-
         .pending-file-preview .remove-pending {
             background: rgba(239,68,68,0.2);
             border: none;
@@ -358,29 +374,6 @@ app.get('/chat', (req, res) => {
             border-radius: 20px;
             color: #fca5a5;
             cursor: pointer;
-            font-size: 11px;
-        }
-
-        .pending-file-preview .remove-pending:hover {
-            background: rgba(239,68,68,0.4);
-        }
-
-        .user-image-in-chat {
-            max-width: 200px;
-            max-height: 200px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .message-time {
-            font-size: 10px;
-            color: #9ca3af;
-            margin-top: 6px;
-        }
-
-        .user-bubble .message-time {
-            color: rgba(255,255,255,0.6);
         }
 
         /* Empty State */
@@ -389,15 +382,10 @@ app.get('/chat', (req, res) => {
             padding: 60px 20px;
         }
 
-        .empty-icon {
-            font-size: 64px;
+        .empty-icon svg {
+            width: 64px;
+            height: 64px;
             margin-bottom: 20px;
-            animation: float 4s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%,100% { transform: translateY(0); }
-            50% { transform: translateY(-12px); }
         }
 
         .empty-state h3 {
@@ -460,7 +448,6 @@ app.get('/chat', (req, res) => {
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 60px;
             padding: 8px 12px 8px 18px;
-            transition: all 0.2s;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -485,10 +472,6 @@ app.get('/chat', (req, res) => {
             cursor: pointer;
             color: #9ca3af;
             font-size: 16px;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .action-btn:hover {
@@ -522,10 +505,6 @@ app.get('/chat', (req, res) => {
             cursor: pointer;
             color: white;
             font-size: 16px;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         #sendBtn:hover {
@@ -571,7 +550,7 @@ app.get('/chat', (req, res) => {
             30% { transform: translateY(-8px); opacity: 1; }
         }
 
-        /* Drawer Sidebar */
+        /* Drawer */
         .drawer-overlay {
             position: fixed;
             top: 0;
@@ -620,7 +599,7 @@ app.get('/chat', (req, res) => {
             margin-bottom: 20px;
         }
 
-        .drawer-logo .logo-svg {
+        .drawer-logo svg {
             width: 40px;
             height: 40px;
         }
@@ -671,7 +650,6 @@ app.get('/chat', (req, res) => {
             border-radius: 10px;
             cursor: pointer;
             margin-bottom: 4px;
-            transition: all 0.2s;
         }
 
         .history-item:hover {
@@ -735,7 +713,6 @@ app.get('/chat', (req, res) => {
             font-size: 12px;
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .chat-container { padding: 0 12px; }
             .mode-btn { padding: 6px 14px; font-size: 11px; }
@@ -753,7 +730,6 @@ app.get('/chat', (req, res) => {
                 <i class="fas fa-bars"></i>
             </button>
             <div class="logo-container">
-                <!-- Logo Modern Bridge - A dan H terhubung -->
                 <svg class="logo-svg" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -762,10 +738,8 @@ app.get('/chat', (req, res) => {
                             <stop offset="100%" style="stop-color:#3b82f6"/>
                         </linearGradient>
                     </defs>
-                    <!-- Huruf A -->
                     <path d="M20 65 L40 20 L60 65" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
                     <path d="M32 50 L48 50" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
-                    <!-- Huruf H terhubung seperti jembatan -->
                     <path d="M65 65 L65 20" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
                     <path d="M65 42 L75 42" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
                     <path d="M75 65 L75 20" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
@@ -787,7 +761,7 @@ app.get('/chat', (req, res) => {
     <div class="drawer" id="drawer">
         <div class="drawer-header">
             <div class="drawer-logo">
-                <svg class="logo-svg" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M20 65 L40 20 L60 65" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
                     <path d="M32 50 L48 50" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
                     <path d="M65 65 L65 20" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
@@ -814,13 +788,20 @@ app.get('/chat', (req, res) => {
         <div class="chat-container">
             <div class="messages-area" id="messagesArea">
                 <div class="empty-state">
-                    <div class="empty-icon">✨</div>
+                    <div class="empty-icon">
+                        <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 65 L40 20 L60 65" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                            <path d="M32 50 L48 50" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M65 65 L65 20" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M65 42 L75 42" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M75 65 L75 20" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
+                        </svg>
+                    </div>
                     <h3>AIBH - Artificial Intelligence Brain of Hasan</h3>
                     <p>Asisten AI dengan 3 mode: Percakapan | Pikir Mendalam | Pencarian Cerdas</p>
                 </div>
             </div>
 
-            <!-- Area untuk preview file sebelum dikirim (di dalam chat) -->
             <div id="pendingFilePreview" style="display: none;"></div>
 
             <div class="typing-indicator" id="typingIndicator">
@@ -828,7 +809,6 @@ app.get('/chat', (req, res) => {
                 <span>AIBH sedang mengetik...</span>
             </div>
 
-            <!-- Mode Selector -->
             <div class="mode-selector">
                 <button class="mode-btn active" data-mode="chat" onclick="setMode('chat')">
                     <i class="fas fa-comment-dots"></i> Percakapan
@@ -841,7 +821,6 @@ app.get('/chat', (req, res) => {
                 </button>
             </div>
 
-            <!-- Input Area -->
             <div class="input-area">
                 <div class="input-wrapper">
                     <div class="input-actions">
@@ -875,7 +854,7 @@ app.get('/chat', (req, res) => {
 <input type="file" id="audioInput" accept="audio/*" style="display:none" onchange="handleFileSelect('audio', this)">
 
 <script>
-    // ========== STATE ==========
+    // State
     let currentChatId = null;
     let chats = [];
     let currentMessages = [];
@@ -884,12 +863,12 @@ app.get('/chat', (req, res) => {
     let pendingFilePreview = null;
     let currentMode = 'chat';
 
-    // ========== LOAD & SAVE ==========
+    // Load & Save
     function loadData() {
-        const saved = localStorage.getItem('aibh_chats_final_v4');
+        const saved = localStorage.getItem('aibh_chats_final_v5');
         if (saved) {
             chats = JSON.parse(saved);
-            const lastId = localStorage.getItem('aibh_current_id_final_v4');
+            const lastId = localStorage.getItem('aibh_current_id_final_v5');
             if (lastId && chats.find(c => c.id === lastId)) {
                 loadChat(lastId);
             } else if (chats.length > 0) {
@@ -904,14 +883,13 @@ app.get('/chat', (req, res) => {
     }
 
     function saveData() {
-        localStorage.setItem('aibh_chats_final_v4', JSON.stringify(chats));
+        localStorage.setItem('aibh_chats_final_v5', JSON.stringify(chats));
         if (currentChatId) {
-            localStorage.setItem('aibh_current_id_final_v4', currentChatId);
+            localStorage.setItem('aibh_current_id_final_v5', currentChatId);
         }
         renderHistory();
     }
 
-    // ========== DRAWER ==========
     function openDrawer() {
         document.getElementById('drawer').classList.add('active');
         document.getElementById('drawerOverlay').classList.add('active');
@@ -922,23 +900,19 @@ app.get('/chat', (req, res) => {
         document.getElementById('drawerOverlay').classList.remove('active');
     }
 
-    // ========== HISTORY ==========
     function renderHistory() {
         const container = document.getElementById('historyList');
         if (chats.length === 0) {
             container.innerHTML = '<div style="padding:20px;text-align:center;color:#6b7280;">Belum ada chat</div>';
             return;
         }
-        
         container.innerHTML = '';
         chats.forEach(chat => {
             const div = document.createElement('div');
             div.className = 'history-item';
             if (chat.id === currentChatId) div.classList.add('active');
-            
             const firstMsg = chat.messages.find(m => m.sender === 'user');
             const title = firstMsg ? (firstMsg.text.substring(0, 30) + (firstMsg.text.length > 30 ? '...' : '')) : 'New Chat';
-            
             div.innerHTML = \`
                 <div class="history-content" onclick="loadChat('\${chat.id}'); closeDrawer();">
                     <div class="history-title-text">\${escapeHtml(title)}</div>
@@ -1006,21 +980,26 @@ app.get('/chat', (req, res) => {
         }
     }
 
-    // ========== RENDER MESSAGES ==========
     function renderMessages() {
         const container = document.getElementById('messagesArea');
-        
         if (currentMessages.length === 0) {
             container.innerHTML = \`
                 <div class="empty-state">
-                    <div class="empty-icon">✨</div>
+                    <div class="empty-icon">
+                        <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 65 L40 20 L60 65" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                            <path d="M32 50 L48 50" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M65 65 L65 20" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M65 42 L75 42" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M75 65 L75 20" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
+                        </svg>
+                    </div>
                     <h3>AIBH - Artificial Intelligence Brain of Hasan</h3>
                     <p>Asisten AI dengan 3 mode: Percakapan | Pikir Mendalam | Pencarian Cerdas</p>
                 </div>
             \`;
             return;
         }
-        
         container.innerHTML = '';
         currentMessages.forEach(msg => {
             if (msg.sender === 'user') {
@@ -1042,7 +1021,15 @@ app.get('/chat', (req, res) => {
                 const div = document.createElement('div');
                 div.className = 'message message-bot';
                 div.innerHTML = \`
-                    <div class="bot-avatar"><i class="fas fa-brain"></i></div>
+                    <div class="bot-avatar">
+                        <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 65 L40 20 L60 65" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                            <path d="M32 50 L48 50" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M65 65 L65 20" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M65 42 L75 42" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M75 65 L75 20" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
+                        </svg>
+                    </div>
                     <div class="bot-bubble">
                         \${msg.text.replace(/\\n/g, '<br>')}
                         <div class="message-time">\${msg.time}</div>
@@ -1065,7 +1052,6 @@ app.get('/chat', (req, res) => {
             msg.imageData = imageData;
         }
         currentMessages.push(msg);
-        
         const chatIndex = chats.findIndex(c => c.id === currentChatId);
         if (chatIndex !== -1) {
             chats[chatIndex].messages = [...currentMessages];
@@ -1074,17 +1060,14 @@ app.get('/chat', (req, res) => {
         renderMessages();
     }
 
-    // ========== MODE ==========
     function setMode(mode) {
         currentMode = mode;
         document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelector(\`.mode-btn[data-mode="\${mode}"]\`).classList.add('active');
     }
 
-    // ========== PENDING FILE PREVIEW (DI DALAM CHAT, SEBELUM ENTER) ==========
     function showPendingFilePreview(file, type, previewData) {
         const container = document.getElementById('pendingFilePreview');
-        
         let html = '';
         if (type === 'image') {
             html = \`
@@ -1110,11 +1093,8 @@ app.get('/chat', (req, res) => {
                 </div>
             \`;
         }
-        
         container.innerHTML = html;
         container.style.display = 'block';
-        
-        // Scroll ke bawah agar preview terlihat
         const messagesArea = document.getElementById('messagesArea');
         messagesArea.scrollTop = messagesArea.scrollHeight;
     }
@@ -1127,7 +1107,6 @@ app.get('/chat', (req, res) => {
         document.getElementById('pendingFilePreview').innerHTML = '';
     }
 
-    // ========== FILE UPLOAD ==========
     function triggerFileUpload(type) {
         if (type === 'image') document.getElementById('imageInput').click();
         else if (type === 'document') document.getElementById('documentInput').click();
@@ -1137,10 +1116,8 @@ app.get('/chat', (req, res) => {
     function handleFileSelect(type, input) {
         const file = input.files[0];
         if (!file) return;
-        
         pendingFile = file;
         pendingFileType = type;
-        
         if (type === 'image') {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -1151,52 +1128,39 @@ app.get('/chat', (req, res) => {
         } else {
             showPendingFilePreview(file, type, null);
         }
-        
         input.value = '';
     }
 
-    // ========== SEND MESSAGE ==========
     async function sendMessage() {
         const input = document.getElementById('messageInput');
         const message = input.value.trim();
-        
         if (!pendingFile && !message) return;
         
-        // Handle file upload
         if (pendingFile) {
             const file = pendingFile;
             const fileType = pendingFileType;
             const filePreview = pendingFilePreview;
-            
-            // Tampilkan pesan user dengan preview gambar di chat
             let userMessageText = message || (fileType === 'image' ? '📷 Mengirim gambar' : \`📎 \${file.name}\`);
-            
             if (fileType === 'image' && filePreview) {
                 addMessage(userMessageText, 'user', filePreview);
             } else {
                 addMessage(userMessageText, 'user');
             }
-            
             input.value = '';
             input.style.height = 'auto';
             clearPendingFile();
-            
             const typing = document.getElementById('typingIndicator');
             const sendBtn = document.getElementById('sendBtn');
             typing.classList.add('active');
             sendBtn.disabled = true;
-            
             try {
                 const formData = new FormData();
                 let endpoint = '';
-                
                 if (fileType === 'image') endpoint = '/api/chat/image';
                 else if (fileType === 'document') endpoint = '/api/chat/document';
                 else endpoint = '/api/chat/audio';
-                
                 formData.append(fileType, file);
                 if (message) formData.append('prompt', message);
-                
                 const response = await fetch(endpoint, { method: 'POST', body: formData });
                 const data = await response.json();
                 addMessage(data.output || 'Maaf, terjadi kesalahan.', 'bot');
@@ -1206,18 +1170,14 @@ app.get('/chat', (req, res) => {
                 typing.classList.remove('active');
                 sendBtn.disabled = false;
             }
-        } 
-        // Handle text only
-        else if (message) {
+        } else if (message) {
             addMessage(message, 'user');
             input.value = '';
             input.style.height = 'auto';
-            
             const typing = document.getElementById('typingIndicator');
             const sendBtn = document.getElementById('sendBtn');
             typing.classList.add('active');
             sendBtn.disabled = true;
-            
             try {
                 const response = await fetch('/api/chat/text', {
                     method: 'POST',
@@ -1242,13 +1202,11 @@ app.get('/chat', (req, res) => {
         }
     }
 
-    // Auto resize textarea
     document.getElementById('messageInput').addEventListener('input', function() {
         this.style.height = 'auto';
         this.style.height = Math.min(this.scrollHeight, 100) + 'px';
     });
 
-    // Initialize
     loadData();
     setMode('chat');
 </script>
@@ -1266,6 +1224,7 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log('╔═══════════════════════════════════════════════════════════════╗');
     console.log('║     ✨ AIBH - FINAL VERSION ✨                               ║');
     console.log('║     ✅ Logo Modern Bridge (A dan H terhubung)                ║');
+    console.log('║     ✅ Bot Avatar = Logo AIBH (sama dengan header)           ║');
     console.log('║     ✅ Preview file DI DALAM CHAT sebelum enter              ║');
     console.log('║     ✅ Bot Kiri | User Kanan | 3 Mode                        ║');
     console.log('╚═══════════════════════════════════════════════════════════════╝');
