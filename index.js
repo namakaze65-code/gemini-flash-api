@@ -119,7 +119,7 @@ app.post('/api/chat/audio', upload.single('audio'), async (req, res) => {
     }
 });
 
-// Frontend - Layout DeepSeek Style
+// Frontend - Final Version
 app.get('/chat', (req, res) => {
     res.send(`<!DOCTYPE html>
 <html lang="id">
@@ -144,7 +144,6 @@ app.get('/chat', (req, res) => {
             overflow: hidden;
         }
 
-        /* Main App Container */
         .app {
             display: flex;
             flex-direction: column;
@@ -153,7 +152,7 @@ app.get('/chat', (req, res) => {
             position: relative;
         }
 
-        /* ========== HEADER SINGLE BAR ========== */
+        /* ========== HEADER ========== */
         .header {
             background: #0a0a0a;
             border-bottom: 1px solid rgba(255,255,255,0.08);
@@ -179,9 +178,6 @@ app.get('/chat', (req, res) => {
             padding: 8px;
             border-radius: 8px;
             transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .menu-btn:hover {
@@ -189,23 +185,16 @@ app.get('/chat', (req, res) => {
             color: #3b82f6;
         }
 
-        /* Logo AIBH - Kembali seperti semula (icon otak dengan gradasi) */
+        /* Logo AIBH - Modern Bridge (A dan H terhubung) */
         .logo-container {
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .logo-icon {
+        .logo-svg {
             width: 36px;
             height: 36px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            box-shadow: 0 2px 8px rgba(102,126,234,0.3);
         }
 
         .logo-text {
@@ -220,13 +209,7 @@ app.get('/chat', (req, res) => {
             -webkit-text-fill-color: transparent;
         }
 
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .status {
+        .header-right .status {
             display: flex;
             align-items: center;
             gap: 6px;
@@ -250,14 +233,13 @@ app.get('/chat', (req, res) => {
             50% { opacity: 0.5; }
         }
 
-        /* ========== MAIN CHAT AREA ========== */
+        /* ========== MAIN CHAT ========== */
         .chat-main {
             flex: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             align-items: center;
-            justify-content: center;
         }
 
         .chat-container {
@@ -294,7 +276,7 @@ app.get('/chat', (req, res) => {
             border-radius: 10px;
         }
 
-        /* Message Bubble */
+        /* Message Bubbles */
         .message {
             display: flex;
             gap: 12px;
@@ -302,17 +284,10 @@ app.get('/chat', (req, res) => {
         }
 
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(15px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Bot Message (KIRI) */
         .message-bot {
             justify-content: flex-start;
         }
@@ -328,7 +303,6 @@ app.get('/chat', (req, res) => {
             font-size: 16px;
             color: white;
             flex-shrink: 0;
-            box-shadow: 0 2px 6px rgba(102,126,234,0.3);
         }
 
         .bot-bubble {
@@ -340,7 +314,6 @@ app.get('/chat', (req, res) => {
             max-width: 85%;
         }
 
-        /* User Message (KANAN) */
         .message-user {
             justify-content: flex-end;
         }
@@ -354,8 +327,45 @@ app.get('/chat', (req, res) => {
             max-width: 85%;
         }
 
-        /* User Image Preview di Chat */
-        .user-image-preview {
+        /* Preview gambar di dalam chat (sebelum enter) */
+        .pending-file-preview {
+            background: #1f2937;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: fit-content;
+            margin-bottom: 12px;
+        }
+
+        .pending-file-preview img {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .pending-file-preview .file-info {
+            font-size: 13px;
+        }
+
+        .pending-file-preview .remove-pending {
+            background: rgba(239,68,68,0.2);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            color: #fca5a5;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .pending-file-preview .remove-pending:hover {
+            background: rgba(239,68,68,0.4);
+        }
+
+        .user-image-in-chat {
             max-width: 200px;
             max-height: 200px;
             border-radius: 12px;
@@ -404,46 +414,7 @@ app.get('/chat', (req, res) => {
             margin-top: 8px;
         }
 
-        /* ========== FILE PREVIEW (DI ATAS INPUT) ========== */
-        .file-preview-area {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-
-        .file-preview-item {
-            background: #1f2937;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 40px;
-            padding: 6px 12px 6px 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-        }
-
-        .file-preview-item img {
-            width: 24px;
-            height: 24px;
-            border-radius: 6px;
-            object-fit: cover;
-        }
-
-        .file-preview-item .remove-file {
-            background: transparent;
-            border: none;
-            color: #9ca3af;
-            cursor: pointer;
-            font-size: 12px;
-            padding: 4px;
-        }
-
-        .file-preview-item .remove-file:hover {
-            color: #ef4444;
-        }
-
-        /* ========== MODE SELECTOR ========== */
+        /* Mode Selector */
         .mode-selector {
             display: flex;
             justify-content: center;
@@ -467,10 +438,6 @@ app.get('/chat', (req, res) => {
             gap: 8px;
         }
 
-        .mode-btn i {
-            font-size: 13px;
-        }
-
         .mode-btn.active {
             background: rgba(59,130,246,0.15);
             border-color: #3b82f6;
@@ -483,7 +450,7 @@ app.get('/chat', (req, res) => {
             border-color: rgba(59,130,246,0.5);
         }
 
-        /* ========== INPUT AREA (PILL) ========== */
+        /* Input Area */
         .input-area {
             padding: 16px 0 24px 0;
         }
@@ -604,7 +571,7 @@ app.get('/chat', (req, res) => {
             30% { transform: translateY(-8px); opacity: 1; }
         }
 
-        /* ========== DRAWER SIDEBAR ========== */
+        /* Drawer Sidebar */
         .drawer-overlay {
             position: fixed;
             top: 0;
@@ -635,7 +602,6 @@ app.get('/chat', (req, res) => {
             transition: transform 0.3s ease;
             display: flex;
             flex-direction: column;
-            box-shadow: 4px 0 20px rgba(0,0,0,0.5);
         }
 
         .drawer.active {
@@ -654,10 +620,9 @@ app.get('/chat', (req, res) => {
             margin-bottom: 20px;
         }
 
-        .drawer-logo .logo-icon {
+        .drawer-logo .logo-svg {
             width: 40px;
             height: 40px;
-            font-size: 22px;
         }
 
         .drawer-logo span {
@@ -772,32 +737,40 @@ app.get('/chat', (req, res) => {
 
         /* Responsive */
         @media (max-width: 768px) {
-            .chat-container {
-                padding: 0 12px;
-            }
-            .mode-btn {
-                padding: 6px 14px;
-                font-size: 11px;
-            }
-            .drawer {
-                width: 85vw;
-            }
-            .header {
-                padding: 10px 16px;
-            }
+            .chat-container { padding: 0 12px; }
+            .mode-btn { padding: 6px 14px; font-size: 11px; }
+            .drawer { width: 85vw; }
+            .header { padding: 10px 16px; }
         }
     </style>
 </head>
 <body>
 <div class="app">
-    <!-- Header Single Bar -->
+    <!-- Header -->
     <div class="header">
         <div class="header-left">
             <button class="menu-btn" onclick="openDrawer()">
                 <i class="fas fa-bars"></i>
             </button>
             <div class="logo-container">
-                <div class="logo-icon"><i class="fas fa-brain"></i></div>
+                <!-- Logo Modern Bridge - A dan H terhubung -->
+                <svg class="logo-svg" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#6366f1"/>
+                            <stop offset="50%" style="stop-color:#8b5cf6"/>
+                            <stop offset="100%" style="stop-color:#3b82f6"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Huruf A -->
+                    <path d="M20 65 L40 20 L60 65" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    <path d="M32 50 L48 50" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
+                    <!-- Huruf H terhubung seperti jembatan -->
+                    <path d="M65 65 L65 20" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
+                    <path d="M65 42 L75 42" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
+                    <path d="M75 65 L75 20" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
+                    <path d="M60 65 L55 65" stroke="#c084fc" stroke-width="4" stroke-linecap="round"/>
+                </svg>
                 <div class="logo-text"><span>AIBH</span> Assistant</div>
             </div>
         </div>
@@ -809,12 +782,18 @@ app.get('/chat', (req, res) => {
         </div>
     </div>
 
-    <!-- Drawer Overlay & Drawer -->
+    <!-- Drawer -->
     <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
     <div class="drawer" id="drawer">
         <div class="drawer-header">
             <div class="drawer-logo">
-                <div class="logo-icon"><i class="fas fa-brain"></i></div>
+                <svg class="logo-svg" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 65 L40 20 L60 65" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    <path d="M32 50 L48 50" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
+                    <path d="M65 65 L65 20" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
+                    <path d="M65 42 L75 42" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
+                    <path d="M75 65 L75 20" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round"/>
+                </svg>
                 <span>AIBH</span>
             </div>
             <button class="drawer-new-chat" onclick="newChat(); closeDrawer();">
@@ -830,27 +809,26 @@ app.get('/chat', (req, res) => {
         </button>
     </div>
 
-    <!-- Main Chat Area -->
+    <!-- Main Chat -->
     <div class="chat-main">
         <div class="chat-container">
             <div class="messages-area" id="messagesArea">
                 <div class="empty-state">
-                    <div class="empty-icon"><i class="fas fa-brain"></i></div>
+                    <div class="empty-icon">✨</div>
                     <h3>AIBH - Artificial Intelligence Brain of Hasan</h3>
                     <p>Asisten AI dengan 3 mode: Percakapan | Pikir Mendalam | Pencarian Cerdas</p>
                 </div>
             </div>
 
-            <!-- File Preview Area (DI ATAS INPUT) -->
-            <div class="file-preview-area" id="filePreviewArea"></div>
+            <!-- Area untuk preview file sebelum dikirim (di dalam chat) -->
+            <div id="pendingFilePreview" style="display: none;"></div>
 
-            <!-- Typing Indicator -->
             <div class="typing-indicator" id="typingIndicator">
                 <div class="typing-dots"><span></span><span></span><span></span></div>
                 <span>AIBH sedang mengetik...</span>
             </div>
 
-            <!-- Mode Selector (DI TENGAH) -->
+            <!-- Mode Selector -->
             <div class="mode-selector">
                 <button class="mode-btn active" data-mode="chat" onclick="setMode('chat')">
                     <i class="fas fa-comment-dots"></i> Percakapan
@@ -901,15 +879,17 @@ app.get('/chat', (req, res) => {
     let currentChatId = null;
     let chats = [];
     let currentMessages = [];
-    let currentFiles = [];
+    let pendingFile = null;
+    let pendingFileType = null;
+    let pendingFilePreview = null;
     let currentMode = 'chat';
 
     // ========== LOAD & SAVE ==========
     function loadData() {
-        const saved = localStorage.getItem('aibh_chats_final_v3');
+        const saved = localStorage.getItem('aibh_chats_final_v4');
         if (saved) {
             chats = JSON.parse(saved);
-            const lastId = localStorage.getItem('aibh_current_id_final_v3');
+            const lastId = localStorage.getItem('aibh_current_id_final_v4');
             if (lastId && chats.find(c => c.id === lastId)) {
                 loadChat(lastId);
             } else if (chats.length > 0) {
@@ -924,9 +904,9 @@ app.get('/chat', (req, res) => {
     }
 
     function saveData() {
-        localStorage.setItem('aibh_chats_final_v3', JSON.stringify(chats));
+        localStorage.setItem('aibh_chats_final_v4', JSON.stringify(chats));
         if (currentChatId) {
-            localStorage.setItem('aibh_current_id_final_v3', currentChatId);
+            localStorage.setItem('aibh_current_id_final_v4', currentChatId);
         }
         renderHistory();
     }
@@ -989,6 +969,7 @@ app.get('/chat', (req, res) => {
         currentMessages = [];
         saveData();
         renderMessages();
+        clearPendingFile();
     }
 
     function loadChat(chatId) {
@@ -998,6 +979,7 @@ app.get('/chat', (req, res) => {
         currentMessages = [...chat.messages];
         renderMessages();
         saveData();
+        clearPendingFile();
     }
 
     function deleteChat(chatId, event) {
@@ -1031,7 +1013,7 @@ app.get('/chat', (req, res) => {
         if (currentMessages.length === 0) {
             container.innerHTML = \`
                 <div class="empty-state">
-                    <div class="empty-icon"><i class="fas fa-brain"></i></div>
+                    <div class="empty-icon">✨</div>
                     <h3>AIBH - Artificial Intelligence Brain of Hasan</h3>
                     <p>Asisten AI dengan 3 mode: Percakapan | Pikir Mendalam | Pencarian Cerdas</p>
                 </div>
@@ -1044,13 +1026,10 @@ app.get('/chat', (req, res) => {
             if (msg.sender === 'user') {
                 const div = document.createElement('div');
                 div.className = 'message message-user';
-                
-                // Cek apakah ada gambar di pesan user
                 let imageHtml = '';
                 if (msg.imageData) {
-                    imageHtml = \`<img src="\${msg.imageData}" class="user-image-preview" alt="user image">\`;
+                    imageHtml = \`<img src="\${msg.imageData}" class="user-image-in-chat" alt="user image">\`;
                 }
-                
                 div.innerHTML = \`
                     <div class="user-bubble">
                         \${imageHtml}
@@ -1102,6 +1081,52 @@ app.get('/chat', (req, res) => {
         document.querySelector(\`.mode-btn[data-mode="\${mode}"]\`).classList.add('active');
     }
 
+    // ========== PENDING FILE PREVIEW (DI DALAM CHAT, SEBELUM ENTER) ==========
+    function showPendingFilePreview(file, type, previewData) {
+        const container = document.getElementById('pendingFilePreview');
+        
+        let html = '';
+        if (type === 'image') {
+            html = \`
+                <div class="pending-file-preview">
+                    <img src="\${previewData}" alt="preview">
+                    <div class="file-info">
+                        <div><strong>\${file.name}</strong></div>
+                        <div style="font-size: 11px; color: #9ca3af;">\${(file.size / 1024).toFixed(1)} KB</div>
+                    </div>
+                    <button class="remove-pending" onclick="clearPendingFile()">✕ Hapus</button>
+                </div>
+            \`;
+        } else {
+            const icon = type === 'document' ? 'fa-file-pdf' : 'fa-music';
+            html = \`
+                <div class="pending-file-preview">
+                    <i class="fas \${icon}" style="font-size: 32px; color: #60a5fa;"></i>
+                    <div class="file-info">
+                        <div><strong>\${file.name}</strong></div>
+                        <div style="font-size: 11px; color: #9ca3af;">\${(file.size / 1024).toFixed(1)} KB</div>
+                    </div>
+                    <button class="remove-pending" onclick="clearPendingFile()">✕ Hapus</button>
+                </div>
+            \`;
+        }
+        
+        container.innerHTML = html;
+        container.style.display = 'block';
+        
+        // Scroll ke bawah agar preview terlihat
+        const messagesArea = document.getElementById('messagesArea');
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+    }
+
+    function clearPendingFile() {
+        pendingFile = null;
+        pendingFileType = null;
+        pendingFilePreview = null;
+        document.getElementById('pendingFilePreview').style.display = 'none';
+        document.getElementById('pendingFilePreview').innerHTML = '';
+    }
+
     // ========== FILE UPLOAD ==========
     function triggerFileUpload(type) {
         if (type === 'image') document.getElementById('imageInput').click();
@@ -1109,69 +1134,25 @@ app.get('/chat', (req, res) => {
         else if (type === 'audio') document.getElementById('audioInput').click();
     }
 
-    function updateFilePreview() {
-        const container = document.getElementById('filePreviewArea');
-        if (currentFiles.length === 0) {
-            container.innerHTML = '';
-            return;
-        }
-        
-        container.innerHTML = '';
-        currentFiles.forEach((file, index) => {
-            const div = document.createElement('div');
-            div.className = 'file-preview-item';
-            
-            if (file.type === 'image') {
-                div.innerHTML = \`
-                    <img src="\${file.preview}" alt="preview">
-                    <span>\${file.name}</span>
-                    <button class="remove-file" onclick="removeFile(\${index})"><i class="fas fa-times"></i></button>
-                \`;
-            } else {
-                const icon = file.type === 'document' ? 'fa-file-pdf' : 'fa-music';
-                div.innerHTML = \`
-                    <i class="fas \${icon}" style="font-size:16px;"></i>
-                    <span>\${file.name}</span>
-                    <button class="remove-file" onclick="removeFile(\${index})"><i class="fas fa-times"></i></button>
-                \`;
-            }
-            container.appendChild(div);
-        });
-    }
-
-    function removeFile(index) {
-        currentFiles.splice(index, 1);
-        updateFilePreview();
-    }
-
     function handleFileSelect(type, input) {
         const file = input.files[0];
         if (!file) return;
         
-        const newFile = {
-            name: file.name,
-            file: file,
-            type: type,
-            preview: null
-        };
+        pendingFile = file;
+        pendingFileType = type;
         
         if (type === 'image') {
             const reader = new FileReader();
             reader.onload = (e) => {
-                newFile.preview = e.target.result;
-                updateFilePreview();
+                pendingFilePreview = e.target.result;
+                showPendingFilePreview(file, type, pendingFilePreview);
             };
             reader.readAsDataURL(file);
+        } else {
+            showPendingFilePreview(file, type, null);
         }
         
-        currentFiles.push(newFile);
-        updateFilePreview();
         input.value = '';
-    }
-
-    function clearAllFiles() {
-        currentFiles = [];
-        updateFilePreview();
     }
 
     // ========== SEND MESSAGE ==========
@@ -1179,25 +1160,26 @@ app.get('/chat', (req, res) => {
         const input = document.getElementById('messageInput');
         const message = input.value.trim();
         
-        if (currentFiles.length === 0 && !message) return;
+        if (!pendingFile && !message) return;
         
-        // Handle file upload - ambil file pertama (bisa multiple nanti)
-        if (currentFiles.length > 0) {
-            const fileData = currentFiles[0];
-            const file = fileData.file;
+        // Handle file upload
+        if (pendingFile) {
+            const file = pendingFile;
+            const fileType = pendingFileType;
+            const filePreview = pendingFilePreview;
             
-            // Tampilkan preview gambar di chat user
-            let userMessageText = message || (fileData.type === 'image' ? '📷 Mengirim gambar' : \`📎 \${file.name}\`);
+            // Tampilkan pesan user dengan preview gambar di chat
+            let userMessageText = message || (fileType === 'image' ? '📷 Mengirim gambar' : \`📎 \${file.name}\`);
             
-            if (fileData.type === 'image' && fileData.preview) {
-                // Untuk gambar, tampilkan preview thumbnail
-                addMessage(userMessageText, 'user', fileData.preview);
+            if (fileType === 'image' && filePreview) {
+                addMessage(userMessageText, 'user', filePreview);
             } else {
                 addMessage(userMessageText, 'user');
             }
             
             input.value = '';
             input.style.height = 'auto';
+            clearPendingFile();
             
             const typing = document.getElementById('typingIndicator');
             const sendBtn = document.getElementById('sendBtn');
@@ -1208,17 +1190,16 @@ app.get('/chat', (req, res) => {
                 const formData = new FormData();
                 let endpoint = '';
                 
-                if (fileData.type === 'image') endpoint = '/api/chat/image';
-                else if (fileData.type === 'document') endpoint = '/api/chat/document';
+                if (fileType === 'image') endpoint = '/api/chat/image';
+                else if (fileType === 'document') endpoint = '/api/chat/document';
                 else endpoint = '/api/chat/audio';
                 
-                formData.append(fileData.type, file);
+                formData.append(fileType, file);
                 if (message) formData.append('prompt', message);
                 
                 const response = await fetch(endpoint, { method: 'POST', body: formData });
                 const data = await response.json();
                 addMessage(data.output || 'Maaf, terjadi kesalahan.', 'bot');
-                clearAllFiles();
             } catch (error) {
                 addMessage('❌ Error: ' + error.message, 'bot');
             } finally {
@@ -1283,9 +1264,10 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log('╔═══════════════════════════════════════════════════════════════╗');
-    console.log('║     ✨ AIBH - Final Version ✨                               ║');
-    console.log('║     Logo Kembali | Preview Gambar di Chat User               ║');
-    console.log('║     Bot Kiri | User Kanan | File Preview di Atas Input       ║');
+    console.log('║     ✨ AIBH - FINAL VERSION ✨                               ║');
+    console.log('║     ✅ Logo Modern Bridge (A dan H terhubung)                ║');
+    console.log('║     ✅ Preview file DI DALAM CHAT sebelum enter              ║');
+    console.log('║     ✅ Bot Kiri | User Kanan | 3 Mode                        ║');
     console.log('╚═══════════════════════════════════════════════════════════════╝');
 });
 
