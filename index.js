@@ -189,31 +189,35 @@ app.get('/chat', (req, res) => {
             color: #3b82f6;
         }
 
-        /* Logo AIBH Stylized - Huruf A Modern */
+        /* Logo AIBH - Kembali seperti semula (icon otak dengan gradasi) */
         .logo-container {
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .logo-a {
+        .logo-icon {
             width: 36px;
             height: 36px;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6, #3b82f6);
+            background: linear-gradient(135deg, #667eea, #764ba2);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
-            font-weight: 900;
-            color: white;
-            box-shadow: 0 2px 8px rgba(59,130,246,0.3);
+            font-size: 20px;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.3);
         }
 
         .logo-text {
             font-size: 16px;
             font-weight: 600;
             color: #f3f4f6;
+        }
+
+        .logo-text span {
+            background: linear-gradient(135deg, #fff, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .header-right {
@@ -316,16 +320,15 @@ app.get('/chat', (req, res) => {
         .bot-avatar {
             width: 32px;
             height: 32px;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            background: linear-gradient(135deg, #667eea, #764ba2);
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 16px;
-            font-weight: 700;
             color: white;
             flex-shrink: 0;
-            box-shadow: 0 2px 6px rgba(99,102,241,0.3);
+            box-shadow: 0 2px 6px rgba(102,126,234,0.3);
         }
 
         .bot-bubble {
@@ -351,10 +354,23 @@ app.get('/chat', (req, res) => {
             max-width: 85%;
         }
 
+        /* User Image Preview di Chat */
+        .user-image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
         .message-time {
             font-size: 10px;
             color: #9ca3af;
             margin-top: 6px;
+        }
+
+        .user-bubble .message-time {
+            color: rgba(255,255,255,0.6);
         }
 
         /* Empty State */
@@ -377,7 +393,7 @@ app.get('/chat', (req, res) => {
         .empty-state h3 {
             font-size: 20px;
             font-weight: 700;
-            background: linear-gradient(135deg, #fff, #8b5cf6);
+            background: linear-gradient(135deg, #fff, #a78bfa);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -638,16 +654,16 @@ app.get('/chat', (req, res) => {
             margin-bottom: 20px;
         }
 
-        .drawer-logo .logo-a {
+        .drawer-logo .logo-icon {
             width: 40px;
             height: 40px;
-            font-size: 24px;
+            font-size: 22px;
         }
 
         .drawer-logo span {
             font-size: 18px;
             font-weight: 700;
-            background: linear-gradient(135deg, #fff, #8b5cf6);
+            background: linear-gradient(135deg, #fff, #a78bfa);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -781,8 +797,8 @@ app.get('/chat', (req, res) => {
                 <i class="fas fa-bars"></i>
             </button>
             <div class="logo-container">
-                <div class="logo-a">A</div>
-                <span class="logo-text">AIBH Assistant</span>
+                <div class="logo-icon"><i class="fas fa-brain"></i></div>
+                <div class="logo-text"><span>AIBH</span> Assistant</div>
             </div>
         </div>
         <div class="header-right">
@@ -798,7 +814,7 @@ app.get('/chat', (req, res) => {
     <div class="drawer" id="drawer">
         <div class="drawer-header">
             <div class="drawer-logo">
-                <div class="logo-a">A</div>
+                <div class="logo-icon"><i class="fas fa-brain"></i></div>
                 <span>AIBH</span>
             </div>
             <button class="drawer-new-chat" onclick="newChat(); closeDrawer();">
@@ -819,7 +835,7 @@ app.get('/chat', (req, res) => {
         <div class="chat-container">
             <div class="messages-area" id="messagesArea">
                 <div class="empty-state">
-                    <div class="empty-icon">✨</div>
+                    <div class="empty-icon"><i class="fas fa-brain"></i></div>
                     <h3>AIBH - Artificial Intelligence Brain of Hasan</h3>
                     <p>Asisten AI dengan 3 mode: Percakapan | Pikir Mendalam | Pencarian Cerdas</p>
                 </div>
@@ -843,7 +859,7 @@ app.get('/chat', (req, res) => {
                     <i class="fas fa-brain"></i> Pikir Mendalam
                 </button>
                 <button class="mode-btn" data-mode="search" onclick="setMode('search')">
-                    <i class="fas fa-globe"></i> Pencarian Cerdas
+                    <i class="fas fa-search"></i> Pencarian Cerdas
                 </button>
             </div>
 
@@ -890,10 +906,10 @@ app.get('/chat', (req, res) => {
 
     // ========== LOAD & SAVE ==========
     function loadData() {
-        const saved = localStorage.getItem('aibh_chats_final_v2');
+        const saved = localStorage.getItem('aibh_chats_final_v3');
         if (saved) {
             chats = JSON.parse(saved);
-            const lastId = localStorage.getItem('aibh_current_id_final_v2');
+            const lastId = localStorage.getItem('aibh_current_id_final_v3');
             if (lastId && chats.find(c => c.id === lastId)) {
                 loadChat(lastId);
             } else if (chats.length > 0) {
@@ -908,9 +924,9 @@ app.get('/chat', (req, res) => {
     }
 
     function saveData() {
-        localStorage.setItem('aibh_chats_final_v2', JSON.stringify(chats));
+        localStorage.setItem('aibh_chats_final_v3', JSON.stringify(chats));
         if (currentChatId) {
-            localStorage.setItem('aibh_current_id_final_v2', currentChatId);
+            localStorage.setItem('aibh_current_id_final_v3', currentChatId);
         }
         renderHistory();
     }
@@ -1015,7 +1031,7 @@ app.get('/chat', (req, res) => {
         if (currentMessages.length === 0) {
             container.innerHTML = \`
                 <div class="empty-state">
-                    <div class="empty-icon">✨</div>
+                    <div class="empty-icon"><i class="fas fa-brain"></i></div>
                     <h3>AIBH - Artificial Intelligence Brain of Hasan</h3>
                     <p>Asisten AI dengan 3 mode: Percakapan | Pikir Mendalam | Pencarian Cerdas</p>
                 </div>
@@ -1028,9 +1044,17 @@ app.get('/chat', (req, res) => {
             if (msg.sender === 'user') {
                 const div = document.createElement('div');
                 div.className = 'message message-user';
+                
+                // Cek apakah ada gambar di pesan user
+                let imageHtml = '';
+                if (msg.imageData) {
+                    imageHtml = \`<img src="\${msg.imageData}" class="user-image-preview" alt="user image">\`;
+                }
+                
                 div.innerHTML = \`
                     <div class="user-bubble">
-                        \${msg.text.replace(/\\n/g, '<br>')}
+                        \${imageHtml}
+                        \${msg.text ? msg.text.replace(/\\n/g, '<br>') : ''}
                         <div class="message-time">\${msg.time}</div>
                     </div>
                 \`;
@@ -1039,7 +1063,7 @@ app.get('/chat', (req, res) => {
                 const div = document.createElement('div');
                 div.className = 'message message-bot';
                 div.innerHTML = \`
-                    <div class="bot-avatar">A</div>
+                    <div class="bot-avatar"><i class="fas fa-brain"></i></div>
                     <div class="bot-bubble">
                         \${msg.text.replace(/\\n/g, '<br>')}
                         <div class="message-time">\${msg.time}</div>
@@ -1051,13 +1075,16 @@ app.get('/chat', (req, res) => {
         container.scrollTop = container.scrollHeight;
     }
 
-    function addMessage(text, sender) {
+    function addMessage(text, sender, imageData = null) {
         const msg = {
             id: Date.now(),
             text: text,
             sender: sender,
             time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
         };
+        if (imageData) {
+            msg.imageData = imageData;
+        }
         currentMessages.push(msg);
         
         const chatIndex = chats.findIndex(c => c.id === currentChatId);
@@ -1152,39 +1179,65 @@ app.get('/chat', (req, res) => {
         const input = document.getElementById('messageInput');
         const message = input.value.trim();
         
-        if (!message && currentFiles.length === 0) return;
+        if (currentFiles.length === 0 && !message) return;
         
-        // Add user message
-        let userText = message || \`📎 \${currentFiles.map(f => f.name).join(', ')}\`;
-        addMessage(userText, 'user');
-        
-        input.value = '';
-        input.style.height = 'auto';
-        
-        const typing = document.getElementById('typingIndicator');
-        const sendBtn = document.getElementById('sendBtn');
-        typing.classList.add('active');
-        sendBtn.disabled = true;
-        
-        try {
-            // Process files one by one (for demo, just send first file or text)
-            if (currentFiles.length > 0) {
-                const file = currentFiles[0];
+        // Handle file upload - ambil file pertama (bisa multiple nanti)
+        if (currentFiles.length > 0) {
+            const fileData = currentFiles[0];
+            const file = fileData.file;
+            
+            // Tampilkan preview gambar di chat user
+            let userMessageText = message || (fileData.type === 'image' ? '📷 Mengirim gambar' : \`📎 \${file.name}\`);
+            
+            if (fileData.type === 'image' && fileData.preview) {
+                // Untuk gambar, tampilkan preview thumbnail
+                addMessage(userMessageText, 'user', fileData.preview);
+            } else {
+                addMessage(userMessageText, 'user');
+            }
+            
+            input.value = '';
+            input.style.height = 'auto';
+            
+            const typing = document.getElementById('typingIndicator');
+            const sendBtn = document.getElementById('sendBtn');
+            typing.classList.add('active');
+            sendBtn.disabled = true;
+            
+            try {
                 const formData = new FormData();
                 let endpoint = '';
                 
-                if (file.type === 'image') endpoint = '/api/chat/image';
-                else if (file.type === 'document') endpoint = '/api/chat/document';
+                if (fileData.type === 'image') endpoint = '/api/chat/image';
+                else if (fileData.type === 'document') endpoint = '/api/chat/document';
                 else endpoint = '/api/chat/audio';
                 
-                formData.append(file.type, file.file);
+                formData.append(fileData.type, file);
                 if (message) formData.append('prompt', message);
                 
                 const response = await fetch(endpoint, { method: 'POST', body: formData });
                 const data = await response.json();
                 addMessage(data.output || 'Maaf, terjadi kesalahan.', 'bot');
                 clearAllFiles();
-            } else {
+            } catch (error) {
+                addMessage('❌ Error: ' + error.message, 'bot');
+            } finally {
+                typing.classList.remove('active');
+                sendBtn.disabled = false;
+            }
+        } 
+        // Handle text only
+        else if (message) {
+            addMessage(message, 'user');
+            input.value = '';
+            input.style.height = 'auto';
+            
+            const typing = document.getElementById('typingIndicator');
+            const sendBtn = document.getElementById('sendBtn');
+            typing.classList.add('active');
+            sendBtn.disabled = true;
+            
+            try {
                 const response = await fetch('/api/chat/text', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1192,12 +1245,12 @@ app.get('/chat', (req, res) => {
                 });
                 const data = await response.json();
                 addMessage(data.output || 'Maaf, terjadi kesalahan.', 'bot');
+            } catch (error) {
+                addMessage('❌ Error: ' + error.message, 'bot');
+            } finally {
+                typing.classList.remove('active');
+                sendBtn.disabled = false;
             }
-        } catch (error) {
-            addMessage('❌ Error: ' + error.message, 'bot');
-        } finally {
-            typing.classList.remove('active');
-            sendBtn.disabled = false;
         }
     }
 
@@ -1230,9 +1283,9 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log('╔═══════════════════════════════════════════════════════════════╗');
-    console.log('║     ✨ AIBH - DeepSeek Style Layout ✨                       ║');
-    console.log('║     Header Single Bar | Drawer Sidebar | 3 Modes             ║');
-    console.log('║     Bot Kiri | User Kanan | File Preview                     ║');
+    console.log('║     ✨ AIBH - Final Version ✨                               ║');
+    console.log('║     Logo Kembali | Preview Gambar di Chat User               ║');
+    console.log('║     Bot Kiri | User Kanan | File Preview di Atas Input       ║');
     console.log('╚═══════════════════════════════════════════════════════════════╝');
 });
 
